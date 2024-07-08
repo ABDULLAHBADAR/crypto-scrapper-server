@@ -42,7 +42,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const allCoins = 'div.ds-dex-table.ds-dex-table-new > a > div.ds-table-data-cell.ds-dex-table-row-col-token';
-const telegramLink = 'div > div.chakra-wrap.custom-0 > ul > a:last-child';
+const telegramLink = 'div > div.chakra-wrap > ul > a[href*="t.me"]';
 const age = '#root > div > main > div.custom-a3qv9n > div.ds-dex-table.ds-dex-table-new > div > div:nth-child(3) > button';
 const volume = '#root > div > main > div.custom-a3qv9n > div.ds-dex-table.ds-dex-table-new > div > div:nth-child(6) > button';
 const tmcap = '#root > div > main > div.custom-a3qv9n > div.ds-dex-table.ds-dex-table-new > div > div:nth-child(13) > button';
@@ -73,13 +73,7 @@ async function createBrowserInstance(radio, clientId) {
 
     const clientIds = Array.from(clients.entries());
     console.log(clientIds);
-    // console.log(clientData.myBrowser);
-    // console.log(`Updated clients map for clientId ${clientId}:`, clients);
-    // console.log(clients)
-    // console.log(clientId);
-    // const clientIds = Array.from(clients.entries()).forEach(([clientId, clientData]) => {
-    //   console.log(`ClientId: ${clientId}, ClientData:`, clientData);
-    // });
+
     await fetch(browser, radio, clientId);
   }
 }
@@ -131,9 +125,8 @@ const fetch = async (browser, radio, clientId) => {
           } catch (error) {
             console.log("error");
           }
-          // console.log(res);
           if (res) {
-            await new Promise((resolve) => setTimeout(resolve, 30000));
+            await new Promise((resolve) => setTimeout(resolve, 35000));
             // Handle radio options..
             if (radio == 'age(oldest first)') {
               console.log("Button clicked");
@@ -194,9 +187,9 @@ const fetch = async (browser, radio, clientId) => {
                   await otherPage.close();
                   continue;
                 }
-                const link = await otherPage.$(telegramLink);
-                if (link) {
-                  const href = await link.evaluate(el => el.href);
+                const link = await otherPage.$$(telegramLink);
+                if (link[1]) {
+                  const href = await link[1].evaluate(el => el.href);
                   if (href.includes('t.me')) {//
                     console.log(href);
                     const myClient = clients.get(clientId);
@@ -205,7 +198,7 @@ const fetch = async (browser, radio, clientId) => {
                       // console.log(ws);
                       ws.send(JSON.stringify({ href }));
                     }
-                  }//
+                  }
                 }
                 await otherPage.close();
                 await new Promise((resolve) => setTimeout(resolve, 6000));
