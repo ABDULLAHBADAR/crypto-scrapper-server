@@ -6,6 +6,8 @@ const path = require("path");
 const cors = require('cors');
 const puppeteer = require('puppeteer');
 const { WebSocketServer } = require('ws');
+const ngrok = require('ngrok');
+
 import { launch } from 'puppeteer';
 import { Solver } from '@2captcha/captcha-solver';
 import { readFileSync } from 'fs';
@@ -43,14 +45,18 @@ if (process.env.NODE_ENV === 'production') {
 
 const allCoins = 'div.ds-dex-table.ds-dex-table-new > a > div.ds-table-data-cell.ds-dex-table-row-col-token';
 const telegramLink = 'div > div.chakra-wrap > ul > a[href*="t.me"]';
-const age = '#root > div > main > div.custom-a3qv9n > div.ds-dex-table.ds-dex-table-new > div > div:nth-child(3) > button';
-const volume = '#root > div > main > div.custom-a3qv9n > div.ds-dex-table.ds-dex-table-new > div > div:nth-child(6) > button';
-const tmcap = '#root > div > main > div.custom-a3qv9n > div.ds-dex-table.ds-dex-table-new > div > div:nth-child(13) > button';
-const token = 'span.ds-dex-table-row-base-token-symbol';
+// const age = '#root > div > main > div.custom-a3qv9n > div.ds-dex-table.ds-dex-table-new > div > div:nth-child(3) > button';
+// const volume = '#root > div > main > div.custom-a3qv9n > div.ds-dex-table.ds-dex-table-new > div > div:nth-child(6) > button';
+// const tmcap = '#root > div > main > div.custom-a3qv9n > div.ds-dex-table.ds-dex-table-new > div > div:nth-child(13) > button';
+// const token = 'span.ds-dex-table-row-base-token-symbol';
+const filterBtn = '#root > div > main > div.custom-a3qv9n > div.custom-jupjcv > div > div.custom-zl2cr9 > div > div.chakra-button__group.custom-1itqpek > button.chakra-button.custom-rdz67p';
+const tmcap = 'form > div.chakra-stack.custom-14xw2ug > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > input'
+const apply = ' footer > button.chakra-button.custom-ug3je';
 
-const clients = new Map();  // Map to store client connections
+const clients = new Map();  // Map to store client connection
 
-async function createBrowserInstance(radio, clientId) {
+async function createBrowserInstance(params, clientId) {
+  console.log(`Creating browser instance for client ${clientId} with parameters:`, params);
   let browser;
   try {
     const initialUserAgent = await normalizeUserAgent();
@@ -74,7 +80,7 @@ async function createBrowserInstance(radio, clientId) {
     const clientIds = Array.from(clients.entries());
     console.log(clientIds);
 
-    await fetch(browser, radio, clientId);
+    await fetch(browser, params, clientId);
   }
 }
 
@@ -107,8 +113,9 @@ const solveCaptcha = async (params) => {
 
   return res;
 };
-
-const fetch = async (browser, radio, clientId) => {
+//
+const fetch = async (browser, parameters, clientId) => {
+  console.log("Params in Fetch : ", parameters);
   try {
     const [page] = await browser.pages();
     const preloadFile = readFileSync('./inject.js', 'utf8');
@@ -124,53 +131,33 @@ const fetch = async (browser, radio, clientId) => {
             await page.evaluate((token) => { cfCallback(token); }, res.data);
           } catch (error) {
             console.log("error");
-          }
+          }//
           if (res) {
-            await new Promise((resolve) => setTimeout(resolve, 35000));
-            // Handle radio options..
-            if (radio == 'age(oldest first)') {
-              console.log("Button clicked");
-              await page.waitForSelector(age);
-              const myAge = await page.$(age);
-              await myAge.click();
-            }
-            else if (radio == 'age(recent first)') {
-              console.log("Button clicked");
-              await page.waitForSelector(age);
-              const myAge = await page.$(age);
-              await myAge.click();
-              await new Promise(x => setTimeout(x, 1000));
-              await myAge.click({ clickCount: 2 });
-            }
-            else if (radio == 'volume(highest first)') {
-              await page.waitForSelector(volume);
-              const myVolume = await page.$(volume);
-              await myVolume.click();
-            }
-            else if (radio == 'volume(lowest first)') {
-              await page.waitForSelector(volume);
-              const myVolume = await page.$(volume);
-              await myVolume.click();
-              await new Promise(x => setTimeout(x, 1000));
-              await myVolume.click({ clickCount: 2 });
-            }
-            else if (radio == 'tmcap(highest first)') {
-              await page.waitForSelector(tmcap);
-              const mytmcap = await page.$(tmcap);
-              await mytmcap.click();
-            }
-            else if (radio == 'tmcap(low first)') {
-              await page.waitForSelector(tmcap);
-              const mytmcap = await page.$(tmcap);
-              await mytmcap.click();
-              await new Promise(x => setTimeout(x, 1000));
-              await mytmcap.click({ clickCount: 2 });
+            await new Promise((resolve) => setTimeout(resolve, 15000));
+            // Handle rado options..
+            let elements;
 
+            try {
+              await page.waitForSelector(allCoins);
+              elements = await page.$$(allCoins);
+            } catch (error) {
+              console.log("error");
+            }//
+            let elLength = 0;
+            if (elements) {
+              if (elements.length < 50) {
+                elLength = elements.length - 1;
+              }
+              else {
+                elLength = 50
+              }
+              console.log("length : ", elLength);
             }
-            await new Promise((resolve) => setTimeout(resolve, 5000));
-            await page.waitForSelector(allCoins);
-            const elements = await page.$$(allCoins);
-            for (let i = 0; i <= 50; i++) {
+            else {
+              elLength = -1;
+            }
+
+            for (let i = 0; i <= elLength; i++) {
               try {
                 await page.keyboard.down('Control');
                 await elements[i].click();
@@ -188,8 +175,9 @@ const fetch = async (browser, radio, clientId) => {
                   continue;
                 }
                 const link = await otherPage.$$(telegramLink);
-                if (link[1]) {
-                  const href = await link[1].evaluate(el => el.href);
+                if (link) {
+                  console.log("Got multiple links")
+                  const href = await link[0].evaluate(el => el.href);
                   if (href.includes('t.me')) {//
                     console.log(href);
                     const myClient = clients.get(clientId);
@@ -197,6 +185,18 @@ const fetch = async (browser, radio, clientId) => {
                     if (ws && ws.readyState === ws.OPEN) {
                       // console.log(ws);
                       ws.send(JSON.stringify({ href }));
+                    }
+                  }
+                  else {
+                    const href = await link[1].evaluate(el => el.href);
+                    if (href.includes('t.me')) {//
+                      console.log(href);
+                      const myClient = clients.get(clientId);
+                      const ws = myClient.ws
+                      if (ws && ws.readyState === ws.OPEN) {
+                        // console.log(ws);
+                        ws.send(JSON.stringify({ href }));
+                      }
                     }
                   }
                 }
@@ -209,6 +209,14 @@ const fetch = async (browser, radio, clientId) => {
                 if (ws && ws.readyState === ws.OPEN) {
                   ws.send(JSON.stringify({ message: "Checking Scrapper Issue....." }));
                 }
+              }
+            }
+            if (elLength <= 2) {
+              console.log("Didnt pick many listings...")
+              const myClient = clients.get(clientId);
+              const ws = myClient.ws
+              if (ws && ws.readyState === ws.OPEN) {
+                ws.send(JSON.stringify({ message: "Didnt pick many listings...." }));
               }
             }
             await browser.close();
@@ -233,11 +241,11 @@ const fetch = async (browser, radio, clientId) => {
           return process.exit();
         }
       } else {
-        return;
+        return;//
       }
-    });
-
-    await page.goto('https://dexscreener.com/new-pairs');
+    });//
+    //
+    await page.goto(`https://dexscreener.com/new-pairs?rankBy=trendingScoreH6&order=desc&minLiq=1000&minMarketCap=${parameters.tmcapMin}&maxMarketCap=${parameters.tmcapMax}&minAge=${parameters.ageMin}&maxAge=${parameters.ageMax}&min24HVol=${parameters.volumeMin}&max24HVol=${parameters.volumeMax}`);
   } catch (error) {
     console.log(error);
   }
@@ -245,7 +253,7 @@ const fetch = async (browser, radio, clientId) => {
 }
 
 app.get('/clients', (req, res) => {
-  try {
+  try {//
     const { client } = req.query;
     // console.log("client is ",client);
     // const clientIds = Array.from(clients.keys());
@@ -261,34 +269,66 @@ app.get('/clients', (req, res) => {
 });
 
 app.post('/', (req, res) => {
+  console.log("Hello budy g");
   try {
-    console.log("new request");
-    const newItem = req.body;
-    const clientId = newItem.clientId;
+    const { ageMin, ageMax, volumeMin, volumeMax, tmcapMin, tmcapMax, clientId } = req.body;
+    console.log(typeof (ageMin));
+
     const ws = clients.get(clientId);
     if (ws && ws.readyState === ws.OPEN) {
-      createBrowserInstance(newItem.message, clientId);
+      createBrowserInstance({ ageMin, ageMax, volumeMin, volumeMax, tmcapMin, tmcapMax }, clientId);
     }
-    res.status(201).json(newItem);
+    res.status(201).json(req.body);
   } catch (error) {
     console.log("Error in POST request from client");
   }
 
 });
 
+
+app.post('/api/users/webhook', (req, res) => {
+  const event = req.body;
+  console.log(req);
+
+
+  if (event.type === 'charge:confirmed') {
+    // Payment was successful
+    console.log('Payment confirmed');
+        // Update payment status in your database
+
+  } else if (event.type === 'charge:failed') {
+    console.log('Payment failed');
+  } else {
+    // Handle other event types as needed
+    console.log(`Unhandled event type: ${event.type}`);
+  }
+
+  res.status(200).send('Webhook received');
+});
+
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => console.log(`Server up and running on port ${port}`));
 
-const wss = new WebSocketServer({ server });
+(async function() {
+  try {
+    const url = await ngrok.connect(port);
+    console.log(`Ngrok tunnel running at ${url}`);
 
-wss.on('connection', (ws, req) => {
-  const clientId = req.url.split('/').pop();
-  clients.set(clientId, {
-    ws: ws,
-    myBrowser: null
-  });
+    const wss = new WebSocketServer({ server });
 
-  ws.on('close', () => {
-    clients.delete(clientId);
-  });
-});
+    wss.on('connection', (ws, req) => {
+      const clientId = req.url.split('/').pop();
+      clients.set(clientId, {
+        ws: ws,
+        myBrowser: null
+      });
+
+      ws.on('close', () => {
+        clients.delete(clientId);
+      });
+    });
+
+  } catch (error) {
+    console.error('Error starting Ngrok:', error);
+  }
+})();
