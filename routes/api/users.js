@@ -57,6 +57,13 @@ router.post("/register", (req, res) => {
 // @desc Login user and return JWT token
 // @access Public
 
+router.get("/getUser", async(req, res) => {
+    console.log(req.query.email)
+    const query = User.findOne({ 'email': req.query.email});
+    const person = await query.exec();
+    res.send(person)
+})
+
 router.post("/login",(req,res) => {
 
     //Form Valdiation
@@ -111,18 +118,60 @@ router.post("/login",(req,res) => {
     });
 });
 
-router.get('/webhook', function(req, res, next) {
-    console.log("req body")
-    console.log(req.body)
-    console.log('webhook received')
-    res.send('respond with a resource');
-  });
+// router.get('/webhook', function(req, res, next) {
+//     console.log("req body")
+//     console.log('webhook received')
+//     res.send('respond with a resource');
+//   });
   
-  router.post('/webhook', function(req, res, next) {
+  router.post('/webhook', async function(req, res, next) {
     console.log("req body")
     console.log(req.body)
-    console.log('webhook received')
-    res.send('respond with a resource');
+    let email = req.body.event.data.metadata.email
+    const query = User.findOne({ 'email': email});
+    const person = await query.exec();
+
+    console.log('query is', person)
+    let type = req.body.event.type
+    const pricingAmount = req.body?.event?.data?.pricing?.local?.amount;
+    const currentDate = new Date();
+
+    let nextPaymentDueDate;
+
+    if (pricingAmount === 0.01) {
+    nextPaymentDueDate = new Date(currentDate);
+    nextPaymentDueDate.setDate(currentDate.getDate() + 2);
+    } else {
+    nextPaymentDueDate = new Date(currentDate.setFullYear(currentDate.getFullYear() + 10));
+    }
+
+    console.log(nextPaymentDueDate);
+// const nextPaymentDueDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
+    if(person){
+        let res;
+    switch(type) {
+        case 'charge:confirmed':
+            res = await User.updateOne({ email: email }, { paymentStatus: 'completed', nextPaymentDueDate:  nextPaymentDueDate});
+            console.log('charge is confirmed')
+            // code block
+            break;
+        case 'charge:pending':
+            res = await User.updateOne({ email: email }, { paymentStatus: 'pending', nextPaymentDueDate:  nextPaymentDueDate});
+            console.log('charge is pending')
+            // code block
+            break;
+        case 'charge:created':
+            // res = await User.updateOne({ email: email }, { paymentStatus: 'completed', nextPaymentDueDate:  nextPaymentDueDate});
+            console.log('charge is initiated')
+            // code block
+            break;
+        default:
+            console.log("chrage failed")
+            // code block
+        }
+    }
+    // res.status(200).send('Webhook successfully received');
+    res.redirect('http://localhost:3001/dashboard');
   });
 
 module.exports = router;
