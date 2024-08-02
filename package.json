@@ -14,6 +14,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
     "@2captcha/captcha-solver": "^1.0.4",
     "axios": "^0.19.0",
@@ -48,6 +49,6 @@
     "nodemon": "^2.0.2"
   },
   "engines": {
-    "node": "^16.19.1"
+    "node": "^18.0.1"
   }
 }
