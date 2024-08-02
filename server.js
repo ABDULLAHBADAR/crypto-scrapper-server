@@ -8,10 +8,10 @@ const puppeteer = require('puppeteer');
 const { WebSocketServer } = require('ws');
 const ngrok = require('ngrok');
 
-import { launch } from 'puppeteer';
-import { Solver } from '@2captcha/captcha-solver';
-import { readFileSync } from 'fs';
-import { normalizeUserAgent } from './normalize-ua.js';
+const { launch } = require('puppeteer');
+const { Solver } = require('@2captcha/captcha-solver');
+const { readFileSync } = require('fs');
+const { normalizeUserAgent } = require('./normalize-ua.js');
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 

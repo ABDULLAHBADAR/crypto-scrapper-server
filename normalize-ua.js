@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer'
+const puppeteer = require('puppeteer');
 
 const normalizeUserAgent = () => {
     return new Promise(async (resolve, reject) => {
