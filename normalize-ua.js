@@ -19,4 +19,4 @@ const normalizeUserAgent = () => {
     })
 }
 
-export { normalizeUserAgent }
+module.exports = { normalizeUserAgent };
