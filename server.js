@@ -334,8 +334,8 @@ const server = app.listen(port, () => console.log(`Server up and running on port
 
 (async function() {
   try {
-    const url = await ngrok.connect(port);
-    console.log(`Ngrok tunnel running at ${url}`);
+    // const url = await ngrok.connect(port);
+    // console.log(`Ngrok tunnel running at ${url}`);
 
     const wss = new WebSocketServer({ server });
 
