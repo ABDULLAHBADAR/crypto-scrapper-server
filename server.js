@@ -21,8 +21,12 @@ const users = require("./routes/api/users");
 const cron = require('node-cron');
 const User = require("./models/UserSchema");
 const app = express();
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
+const corsOptions = {
+  origin: 'https://crypto-scrapper-client.onrender.com',
+  optionsSuccessStatus: 200 // For legacy browser support
+};
+
+app.use(cors(corsOptions));app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const solver = new Solver(process.env.CAPTCHA_API_KEY);
@@ -276,20 +280,26 @@ const fetch = async (browser, parameters, clientId) => {
 }
 
 app.get('/clients', (req, res) => {
-  try {//
+  try {
     const { client } = req.query;
-    // console.log("client is ",client);
-    // const clientIds = Array.from(clients.keys());
-    // console.log(clientIds)
+    if (!client) {
+      return res.status(400).json({ error: 'Client parameter is missing' });
+    }
+
     const myClient = clients.get(client);
+    if (!myClient) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+
     const browser = myClient.myBrowser;
-    console.log("browser value : ", browser);
+    console.log('browser value:', browser);
     res.json(browser);
   } catch (error) {
-    console.log("Error in Getting Cliet Info");
+    console.log('Error in Getting Client Info', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
 });
+
 
 app.post('/', (req, res) => {
   console.log("Hello budy g");
