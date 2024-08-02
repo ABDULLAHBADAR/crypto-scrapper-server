@@ -76,7 +76,7 @@ const filterBtn = '#root > div > main > div.custom-a3qv9n > div.custom-jupjcv > 
 const tmcap = 'form > div.chakra-stack.custom-14xw2ug > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > input'
 const apply = ' footer > button.chakra-button.custom-ug3je';
 
-const clients = new Map();  // Map to store client connection
+const clients = new Map();  // Mp to store client connection
 
 async function createBrowserInstance(params, clientId) {
   console.log(`Creating browser instance for client ${clientId} with parameters:`, params);
@@ -84,7 +84,7 @@ async function createBrowserInstance(params, clientId) {
   try {
     const initialUserAgent = await normalizeUserAgent();
     browser = await launch({
-      headless: false,
+      headless: true,
       args: [
         `--user-agent=${initialUserAgent}`,
         "--start-maximized"
@@ -92,7 +92,7 @@ async function createBrowserInstance(params, clientId) {
       defaultViewport: null
     });//
   } catch (error) {
-    console.log("Error generated in intializing Browser");
+    console.log(error);
   }
 
   if (browser) {
