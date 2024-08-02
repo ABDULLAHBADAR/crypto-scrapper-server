@@ -18,7 +18,8 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 require('dotenv').config();
 
 const users = require("./routes/api/users");
-
+const cron = require('node-cron');
+const User = require("./models/UserSchema");
 const app = express();
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -32,6 +33,28 @@ mongoose.connect(process.env.MONGODB_URI || dbURL, { useUnifiedTopology: true, u
   .then(() => console.log("MongoDB successfully connected"))
   .catch(err => console.log(err));
 
+// cron.schedule('* * * * *', async () => {
+//   console.log('Running payment check...');
+
+//   try {
+//     const users = await User.find();
+
+//     const currentDate = new Date();
+
+//     for (const user of users) {
+//       if (user.nextPaymentDueDate < currentDate) {
+//         user.paymentStatus = 'unpaid';
+//         await user.save();
+//         console.log(`Updated payment status for user ${user._id}`);
+//       }
+//     }
+
+//     console.log('Payment check completed.');
+//   } catch (err) {
+//     console.error('Error checking payments:', err);
+//   }
+// }); 
+// Passport middleware
 app.use(passport.initialize());
 require("./config/passport")(passport);
 app.use("/api/users", users);
