@@ -280,10 +280,10 @@ const fetch = async (browser, parameters, clientId) => {
 
 }
 
-app.get('/sockets', (req, res) => {
-  console.log("testing")
+app.post('/sockets', (req, res) => {
+  console.log("testing");
   try {
-    const { client } = req.query;
+    const { client } = req.body; // Extracting client from the request body
     if (!client) {
       return res.status(400).json({ error: 'Client parameter is missing' });
     }
