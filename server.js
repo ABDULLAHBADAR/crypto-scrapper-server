@@ -280,7 +280,7 @@ const fetch = async (browser, parameters, clientId) => {
 
 }
 
-app.get('/clients', (req, res) => {
+app.get('/sockets', (req, res) => {
   console.log("testing")
   try {
     const { client } = req.query;
