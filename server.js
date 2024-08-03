@@ -281,6 +281,7 @@ const fetch = async (browser, parameters, clientId) => {
 }
 
 app.get('/clients', (req, res) => {
+  console.log("testing")
   try {
     const { client } = req.query;
     if (!client) {
