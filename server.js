@@ -22,11 +22,12 @@ const cron = require('node-cron');
 const User = require("./models/UserSchema");
 const app = express();
 const corsOptions = {
-  origin: 'https://crypto-scrapper-client.onrender.com',
+  origin: '*',
   optionsSuccessStatus: 200 // For legacy browser support
 };
+app.use(cors(corsOptions));
 
-app.use(cors(corsOptions));app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const solver = new Solver(process.env.CAPTCHA_API_KEY);
