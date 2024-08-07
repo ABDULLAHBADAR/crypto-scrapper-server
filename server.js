@@ -89,7 +89,7 @@ async function createBrowserInstance(params, clientId) {
   try {
     const initialUserAgent = await normalizeUserAgent();
     browser = await launch({
-      headless: true,
+      headless: false,
       args: [
         `--user-agent=${initialUserAgent}`,
         "--start-maximized"
@@ -203,9 +203,9 @@ const fetch = async (browser, parameters, clientId) => {
                   continue;
                 }
                 const link = await otherPage.$$(telegramLink);
-                if (link) {
+                if (link[1]) {
                   console.log("Got multiple links")
-                  const href = await link[0].evaluate(el => el.href);
+                  const href = await link[1].evaluate(el => el.href);
                   if (href.includes('t.me')) {//
                     console.log(href);
                     const myClient = clients.get(clientId);
@@ -215,8 +215,8 @@ const fetch = async (browser, parameters, clientId) => {
                       ws.send(JSON.stringify({ href }));
                     }
                   }
-                  else {
-                    const href = await link[1].evaluate(el => el.href);
+                  else if (link[0]) {
+                    const href = await link[0].evaluate(el => el.href);
                     if (href.includes('t.me')) {//
                       console.log(href);
                       const myClient = clients.get(clientId);
@@ -279,7 +279,6 @@ const fetch = async (browser, parameters, clientId) => {
   }
 
 }
-
 app.post('/sockets', (req, res) => {
   console.log("testing");
   try {
