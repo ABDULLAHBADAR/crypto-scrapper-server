@@ -89,7 +89,7 @@ async function createBrowserInstance(params, clientId) {
   try {
     const initialUserAgent = await normalizeUserAgent();
     browser = await launch({
-      headless: false,
+      headless: true,
       args: [
         `--user-agent=${initialUserAgent}`,
         "--start-maximized"
