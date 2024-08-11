@@ -205,7 +205,7 @@ const fetch = async (browser, parameters, clientId) => {
                 }
                 const otherPage = (await browser.pages())[1];
                 try {
-                  await otherPage.waitForSelector(telegramLink, { timeout: 30000 });
+                  await otherPage.waitForSelector(telegramLink, { timeout: 60000 });
                 } catch (error) {
                   console.log(error);
                   await otherPage.close();
