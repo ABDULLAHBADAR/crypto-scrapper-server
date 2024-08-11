@@ -166,6 +166,15 @@ const fetch = async (browser, parameters, clientId) => {
             let elements;
 
             try {
+              const url = await page.url();
+              console.log(url);
+              const newUurl = await page.evaluate(() => document.location.href);
+              console.log(newUurl);
+            } catch (error) {
+              console.log(error);
+            }//
+
+            try {
               await page.waitForSelector(allCoins);
               elements = await page.$$(allCoins);
             } catch (error) {
@@ -328,7 +337,7 @@ app.post('/api/users/webhook', (req, res) => {
   if (event.type === 'charge:confirmed') {
     // Payment was successful
     console.log('Payment confirmed');
-        // Update payment status in your database
+    // Update payment status in your database
 
   } else if (event.type === 'charge:failed') {
     console.log('Payment failed');
@@ -343,7 +352,7 @@ app.post('/api/users/webhook', (req, res) => {
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => console.log(`Server up and running on port ${port}`));
 
-(async function() {
+(async function () {
   try {
     // const url = await ngrok.connect(port);
     // console.log(`Ngrok tunnel running at ${url}`);
