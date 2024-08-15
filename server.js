@@ -95,7 +95,7 @@ async function createBrowserInstance(params, clientId) {
         "--start-maximized"
       ],
       defaultViewport: null
-    });//
+    });
   } catch (error) {
     console.log("Error generated in intializing Browser");
   }
@@ -282,7 +282,7 @@ const fetch = async (browser, parameters, clientId) => {
       }
     });//
     //
-    await page.goto(`https://dexscreener.com/new-pairs?rankBy=pairAge&order=asc&minMarketCap=${parameters.tmcapMin}&maxMarketCap=${parameters.tmcapMax}&minAge=${parameters.ageMin}&maxAge=${parameters.ageMax}&min24HVol=${parameters.volumeMin}&max24HVol=${parameters.volumeMax}`);
+    await page.goto(`https://dexscreener.com/new-pairs?rankBy=trendingScoreH6&order=desc&minLiq=1000&minMarketCap=${parameters.tmcapMin}&maxMarketCap=${parameters.tmcapMax}&minAge=${parameters.ageMin}&maxAge=${parameters.ageMax}&min24HVol=${parameters.volumeMin}&max24HVol=${parameters.volumeMax}`);
   } catch (error) {
     console.log(error);
   }
