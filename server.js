@@ -161,7 +161,7 @@ const fetch = async (browser, parameters, clientId) => {
             console.log("error");
           }//
           if (res) {
-            await new Promise((resolve) => setTimeout(resolve, 15000));
+            await new Promise((resolve) => setTimeout(resolve, 30000));
             // Handle rado options..
             let elements;
 
@@ -257,9 +257,11 @@ const fetch = async (browser, parameters, clientId) => {
               }
             }
             await browser.close();
+            console.log("Browser Closed");
           }
           else {
             await browser.close();
+            console.log("Browser Closed");
             const myClient = clients.get(clientId);
             const ws = myClient.ws
             if (ws && ws.readyState === ws.OPEN) {
@@ -269,6 +271,7 @@ const fetch = async (browser, parameters, clientId) => {
 
         } catch (e) {
           await browser.close();
+          console.log("Browser Closed");
           console.log(e);
           const myClient = clients.get(clientId);
           const ws = myClient.ws
