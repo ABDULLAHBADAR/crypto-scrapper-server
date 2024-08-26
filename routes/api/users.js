@@ -138,11 +138,12 @@ router.post("/login",(req,res) => {
 
     let nextPaymentDueDate;
 
-    if (pricingAmount === 0.01) {
-    nextPaymentDueDate = new Date(currentDate);
-    nextPaymentDueDate.setDate(currentDate.getDate() + 2);
+    if (pricingAmount === 10) {
+        nextPaymentDueDate = new Date(currentDate);
+        nextPaymentDueDate.setDate(currentDate.getDate() + 10);
     } else {
-    nextPaymentDueDate = new Date(currentDate.setFullYear(currentDate.getFullYear() + 10));
+        nextPaymentDueDate = new Date(currentDate);
+        nextPaymentDueDate.setMonth(currentDate.getMonth() + 6);
     }
 
     console.log(nextPaymentDueDate);
